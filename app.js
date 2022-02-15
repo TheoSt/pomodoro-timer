@@ -29,8 +29,8 @@ const default_short_value = 5;
 const default_long_value = 15;
 
 let pomodoro_value = default_pomodoro_value, 
-    short_break_value = default_short_value,
-    long_break_value = default_long_value;
+    short_value = default_short_value,
+    long_value = default_long_value;
 
 let font = "";
 let color = "";
@@ -45,18 +45,24 @@ let endOffset = 250;
 let active_time = pomodoro_value;
 let active_mode = "pomodoro";
 
-let starting_minutes = active_time;
-let time = starting_minutes*60;
-let circleOffset = startOffset;
-
-let sounds = [new Audio('sounds/positive.wav'),
-                new Audio('sounds/marimba.wav')];
+let sounds = 
+    [
+        new Audio('sounds/positive.wav'),
+        new Audio('sounds/marimba.wav')
+    ];
 selected_sound = sounds[0];
 let sound_volume = 1;
 
 //the beginning stroke dash offset is 1000 and the last is 250. We want the circle to move
 //1000-250 = 750px and every second we want to move the circle 750/(the seconds we want)
-let offsetIter = (circleOffset-startOffset)/time; 
+let circleOffset = startOffset;
+let offsetIter = (circleOffset-startOffset)/time;
+
+setTimer(active_time,startOffset,endOffset);
+
+//init the starting theme color and font
+fonts_btns[0].classList.add("active_font");
+colors_btns[0].classList.add("active_color");
 
 //take the position of every mode in the mode bar(for the mode label)
 //and add the mode listener
@@ -85,11 +91,6 @@ mode_elements.forEach(mode=> {
         active_mode = data;
     });
 });
-
-//init the starting theme color and font
-fonts_btns[0].classList.add("active_font");
-colors_btns[0].classList.add("active_color");
-
 
 box.addEventListener("click",function() {
     if(!start_timer) {
@@ -185,37 +186,17 @@ function setTimer(val,startOffset,endOffset) {
 
     start_timer = false;
     pause_timer = false;
-    countdown_el.textContent = checkDigits(active_time);
+    countdown_el.textContent = checkDigits(val);
     time_state.textContent = "start";
 }
 
 function takeSettingsValues() {
     time_error = false;
 
-    if(pomodoro_value_el.value % 1 !==0) {
-        pomodoro_value = default_pomodoro_value;
-        time_error = true;
-    }
-    else {
-        parseInt(pomodoro_value_el.value);  
-    }
-
-    if(short_value_el.value % 1 !==0) {
-        short_value = default_pomodoro_value;
-        time_error = true;
-    }
-    else {
-        parseInt(short_value_el.value);  
-    }
-
-    if(long_value_el.value % 1 !==0) {
-        long_value = default_pomodoro_value;
-        time_error = true;
-    }
-    else {
-        parseInt(long_value_el.value);  
-    }
-
+    pomodoro_value = checkValue(pomodoro_value_el);
+    short_value = checkValue (short_value_el);
+    long_value = checkValue(long_value_el);
+    
     time_error_el.style.display = time_error ? "block":"none";
 
     document.body.style.fontFamily = font;
@@ -227,7 +208,7 @@ function takeSettingsValues() {
     selected_sound.volume = sound_volume;
     
     if(active_mode==="pomodoro") active_time = pomodoro_value;
-    else if(active_mode="short break") active_time = short_value;
+    else if(active_mode==="short break") active_time = short_value;
     else active_time = long_value;
 }
 
@@ -257,6 +238,16 @@ function checkDigits(val) {
     if(val>=10) return `${val}:00`;
 
     return `0${val}:00`;
+}
+
+function checkValue(element) {
+    if(element.value % 1 !==0) {
+        time_error = true;
+        if(element.dataset.mode==="pomodoro") return default_pomodoro_value;
+        else if(element.dataset.mode==="short break") return default_short_value;
+        else return default_long_value;
+    }
+    return parseInt(element.value);  
 }
 
 function updateCounter() {
