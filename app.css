@@ -422,6 +422,7 @@ h1 {
 #volume_section span {
     margin-left:0.5em;
     width:10%;
+    font-size:0.8rem;
 }
 
 
@@ -522,6 +523,10 @@ h1 {
     #sound_section h3 {
         text-align:left;
         font-size:0.8rem;
+    }
+
+    #volume_section span {
+        font-size:0.9rem;
     }
 }
 
